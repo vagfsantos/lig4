@@ -1,0 +1,79 @@
+@use "sass:color";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Alexandria", serif;
+  font-optical-sizing: auto;
+}
+
+#game {
+  width: 1000px;
+  height: 700px;
+  position: relative;
+  background-color: #e5e5e5;
+
+  header {
+    width: 100%;
+    padding: 26px 22px;
+    background-color: #2ec4b6;
+
+    h1 {
+      font-size: 4rem;
+    }
+  }
+
+  nav {
+    margin-top: 52px;
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 204px;
+      height: 62px;
+      font-size: 2rem;
+      font-weight: normal;
+      text-align: left;
+      padding: 0px 26px;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s background-color ease-in;
+
+      &.primary {
+        background-color: #ff9f1c;
+        &:hover {
+          background-color: color.scale($color: #ff9f1c, $blackness: 10%);
+        }
+      }
+
+      &.secondary {
+        background-color: #c3c3c3;
+        &:hover {
+          background-color: color.scale($color: #c3c3c3, $blackness: 10%);
+        }
+      }
+    }
+  }
+}
+
+#game-canvas {
+  width: 700px;
+  height: 564px;
+  position: absolute;
+  border: 1px solid black;
+  bottom: 32px;
+  right: 67px;
+}

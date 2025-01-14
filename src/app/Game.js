@@ -1,16 +1,21 @@
+import { Board } from "./Board";
+
 export class Game {
   player = null;
   machine = null;
-  board = [];
+  board = null;
 
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.board = new Board({
+      ctx: this.ctx,
+      width: canvas.width,
+      height: canvas.height,
+    });
   }
 
   init() {
-    this.ctx.beginPath();
-    this.ctx.arc(100, 50, 100, 0, 2 * Math.PI);
-    this.ctx.fill();
+    this.board.renderBoard(this.ctx);
   }
 }

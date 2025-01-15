@@ -16,7 +16,7 @@ export class Board {
   constructor({ ctx, width, height }) {
     this.ctx = ctx;
     this.width = width;
-    this.width = height;
+    this.height = height;
     this.columns = Array(COLUMN_COUNT)
       .fill(null)
       .map(() => new Column());
@@ -24,8 +24,6 @@ export class Board {
   }
 
   fillColumnsWithSpots() {
-    console.log(this.columns);
-
     this.columns.forEach((col) => {
       col.addSpots(
         Array(SPOTS_PER_COLUMNS_COUNT)
@@ -44,6 +42,7 @@ export class Board {
   }
 
   renderBoard() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
     this.columns.forEach((col, columnIndex) => {
       const currentSpots = col.getSpots();
 
@@ -60,6 +59,28 @@ export class Board {
         this.ctx.fill();
         this.ctx.closePath();
       });
+    });
+
+    window.requestAnimationFrame(() => this.renderBoard());
+  }
+
+  setColumnActive({ positionX }) {
+    const columnActiveIndex = Math.floor(
+      positionX / (this.width / COLUMN_COUNT)
+    );
+
+    this.columns.forEach((column, index) => {
+      if (index === columnActiveIndex) {
+        return column.setSpotsActive();
+      }
+
+      column.setColumnInactive();
+    });
+  }
+
+  setAllColumnsInactive() {
+    this.columns.forEach((column) => {
+      column.setColumnInactive();
     });
   }
 

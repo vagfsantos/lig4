@@ -1,6 +1,7 @@
 export class MouseAction {
   mouseMoveCallbacks = [];
   mouseOutCallbacks = [];
+  mouseClickCallbacks = [];
 
   constructor({ ctx, canvas }) {
     this.ctx = ctx;
@@ -10,13 +11,19 @@ export class MouseAction {
   watch() {
     this.watchMouseMove();
     this.watchMouseOut();
+    this.watchMouseClick();
   }
 
   onMouseMove(callback) {
     this.mouseMoveCallbacks.push(callback);
   }
+
   onMouseOut(callback) {
     this.mouseOutCallbacks.push(callback);
+  }
+
+  onMouseClick(callback) {
+    this.mouseClickCallbacks.push(callback);
   }
 
   watchMouseMove() {
@@ -33,6 +40,17 @@ export class MouseAction {
   watchMouseOut() {
     this.canvas.addEventListener("mouseout", (event) => {
       this.mouseOutCallbacks.forEach((callback) => callback());
+    });
+  }
+
+  watchMouseClick() {
+    this.canvas.addEventListener("click", (event) => {
+      const positionX = event.offsetX;
+      const positionY = event.offsetY;
+
+      this.mouseClickCallbacks.forEach((callback) =>
+        callback({ positionX, positionY })
+      );
     });
   }
 }

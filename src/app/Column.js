@@ -17,12 +17,4 @@ export class Column {
   getSpots() {
     return this.spots;
   }
-
-  setSpotsActive() {
-    this.spots.forEach((spot) => spot.preActivate());
-  }
-
-  setColumnInactive() {
-    this.spots.forEach((spot) => spot.inactivate());
-  }
 }

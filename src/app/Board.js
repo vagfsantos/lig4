@@ -41,6 +41,14 @@ export class Board {
     );
   }
 
+  getColumnIndexByPositionX(positionX) {
+    const columnActiveIndex = Math.floor(
+      positionX / (this.width / COLUMN_COUNT)
+    );
+
+    return columnActiveIndex;
+  }
+
   renderBoard() {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this.columns.forEach((col, columnIndex) => {
@@ -65,13 +73,14 @@ export class Board {
   }
 
   setColumnActive({ positionX }) {
-    const columnActiveIndex = Math.floor(
-      positionX / (this.width / COLUMN_COUNT)
-    );
-
+    const columnActiveIndex = this.getColumnIndexByPositionX(positionX);
     this.columns.forEach((column, index) => {
       if (index === columnActiveIndex) {
-        return column.setSpotsActive();
+        return column.getSpots().forEach((spot) => {
+          if (!spot.hasOwner()) {
+            spot.preActivate();
+          }
+        });
       }
 
       column.setColumnInactive();
@@ -80,9 +89,25 @@ export class Board {
 
   setAllColumnsInactive() {
     this.columns.forEach((column) => {
-      column.setColumnInactive();
+      column.getSpots().forEach((spot) => {
+        if (!spot.hasOwner()) {
+          spot.inactivate();
+        }
+      });
     });
   }
 
-  renderSpot() {}
+  play({ wichPlayer, positionX }) {
+    const columnActiveIndex = this.getColumnIndexByPositionX(positionX);
+
+    const availableSpot = this.columns[columnActiveIndex]
+      .getSpots()
+      .findLast((spot) => !spot.hasOwner());
+
+    if (!availableSpot) {
+      throw Error("Cannot play in this column.");
+    }
+
+    availableSpot.setOwnedBy(wichPlayer);
+  }
 }

@@ -1,3 +1,5 @@
+import { PLAYERS } from "./constants";
+
 export class Spot {
   state = SpotStates.EMPTY;
 
@@ -16,12 +18,22 @@ export class Spot {
   inactivate() {
     this.state = SpotStates.EMPTY;
   }
+
+  setOwnedBy(whichPlayer) {
+    this.state = whichPlayer;
+  }
+
+  hasOwner() {
+    return (
+      this.state === SpotStates.PLAYER || this.state === SpotStates.MACHINE
+    );
+  }
 }
 
 export const SpotStates = {
   EMPTY: "empty",
-  PLAYER: "player",
-  MACHINE: "machine",
+  PLAYER: PLAYERS.USER,
+  MACHINE: PLAYERS.MACHINE,
   PLAYER_PREACTIVE: "player_preactive",
   MACHINE_PREACTIVE: "machine_preactive",
 };

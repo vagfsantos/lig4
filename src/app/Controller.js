@@ -1,3 +1,5 @@
+import { PLAYERS } from "./constants";
+
 export class Controller {
   constructor({ mouseAction, board }) {
     this.mouseAction = mouseAction;
@@ -8,6 +10,7 @@ export class Controller {
     this.mouseAction.watch();
     this.mouseAction.onMouseMove((...args) => this.onMouseMove(...args));
     this.mouseAction.onMouseOut((...args) => this.onMouseOut(...args));
+    this.mouseAction.onMouseClick((...args) => this.onMousClick(...args));
   }
 
   onMouseMove({ positionX, positionY }) {
@@ -16,5 +19,9 @@ export class Controller {
 
   onMouseOut() {
     this.board.setAllColumnsInactive();
+  }
+
+  onMousClick({ positionX, positionY }) {
+    this.board.play({ wichPlayer: PLAYERS.USER, positionX });
   }
 }

@@ -17,4 +17,8 @@ export class Column {
   getSpots() {
     return this.spots;
   }
+
+  hasAvailableSpot() {
+    return this.spots.some((spot) => !spot.hasOwner());
+  }
 }

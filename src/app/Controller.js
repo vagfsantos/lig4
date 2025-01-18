@@ -22,6 +22,11 @@ export class Controller {
   }
 
   onMousClick({ positionX, positionY }) {
-    this.board.play({ wichPlayer: PLAYERS.USER, positionX });
+    if (this.board.getPlayTurn() === PLAYERS.USER) {
+      this.board.play({
+        whichPlayer: PLAYERS.USER,
+        columnIndex: this.board.getColumnIndexByPositionX(positionX),
+      });
+    }
   }
 }

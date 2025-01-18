@@ -1,17 +1,18 @@
 import { Column } from "./Column";
 import {
   COLUMN_COUNT,
-  SPOT_HALF_RADIUS,
+  PLAYERS,
   SPOT_MARGIN,
   SPOT_RADIUS,
   SPOTS_PER_COLUMNS_COUNT,
 } from "./constants";
-import { Spot, SpotStates } from "./Spot";
+import { Spot } from "./Spot";
 
 export class Board {
   width = null;
   height = null;
   columns = [];
+  playTurn = PLAYERS.USER;
 
   constructor({ ctx, width, height }) {
     this.ctx = ctx;
@@ -21,6 +22,10 @@ export class Board {
       .fill(null)
       .map(() => new Column());
     this.fillColumnsWithSpots();
+  }
+
+  getPlayTurn() {
+    return this.playTurn;
   }
 
   fillColumnsWithSpots() {
@@ -75,15 +80,19 @@ export class Board {
   setColumnActive({ positionX }) {
     const columnActiveIndex = this.getColumnIndexByPositionX(positionX);
     this.columns.forEach((column, index) => {
-      if (index === columnActiveIndex) {
-        return column.getSpots().forEach((spot) => {
-          if (!spot.hasOwner()) {
-            spot.preActivate();
-          }
-        });
-      }
+      return column.getSpots().forEach((spot) => {
+        if (
+          index === columnActiveIndex &&
+          !spot.hasOwner() &&
+          this.getPlayTurn() === PLAYERS.USER
+        ) {
+          return spot.preActivate();
+        }
 
-      column.setColumnInactive();
+        if (!spot.hasOwner()) {
+          spot.inactivate();
+        }
+      });
     });
   }
 
@@ -97,10 +106,13 @@ export class Board {
     });
   }
 
-  play({ wichPlayer, positionX }) {
-    const columnActiveIndex = this.getColumnIndexByPositionX(positionX);
+  setNextPlayerTurn({ currentPlayer }) {
+    this.playTurn =
+      currentPlayer === PLAYERS.USER ? PLAYERS.MACHINE : PLAYERS.USER;
+  }
 
-    const availableSpot = this.columns[columnActiveIndex]
+  play({ whichPlayer, columnIndex }) {
+    const availableSpot = this.columns[columnIndex]
       .getSpots()
       .findLast((spot) => !spot.hasOwner());
 
@@ -108,6 +120,31 @@ export class Board {
       throw Error("Cannot play in this column.");
     }
 
-    availableSpot.setOwnedBy(wichPlayer);
+    availableSpot.setOwnedBy(whichPlayer);
+    this.setNextPlayerTurn({ currentPlayer: whichPlayer });
+    this.maybeMachinePlay();
+  }
+
+  getColumnIndexesPossibleToPlay() {
+    return this.columns.reduce((availableIndexes, column, index) => {
+      const available = column.hasAvailableSpot() ? [index] : [];
+      return [...availableIndexes, ...available];
+    }, []);
+  }
+
+  maybeMachinePlay() {
+    if (this.getPlayTurn() === PLAYERS.MACHINE) {
+      const columnIndexesAvailable = this.getColumnIndexesPossibleToPlay();
+
+      const randomPosition =
+        columnIndexesAvailable[
+          Math.round(Math.random() * (columnIndexesAvailable.length - 1))
+        ];
+
+      this.play({
+        whichPlayer: PLAYERS.MACHINE,
+        columnIndex: randomPosition,
+      });
+    }
   }
 }

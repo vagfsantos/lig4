@@ -31,6 +31,24 @@
         </ul>
       </nav>
 
+      <section id="score">
+        <span>Score</span>
+
+        <div class="score-wrapper">
+          <div
+            id="user-score-wrapper"
+            class="score-badge score-user is-playing"
+          >
+            <img src="./img/user.svg" />
+            <span id="user-score-points">0</span>
+          </div>
+          <div id="machine-score-wrapper" class="score-badge score-machine">
+            <span id="machine-score-points">0</span>
+            <img src="./img/machine.svg" />
+          </div>
+        </div>
+      </section>
+
       <canvas id="game-canvas" width="659" height="564"></canvas>
     </div>
   </body>

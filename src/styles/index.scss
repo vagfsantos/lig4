@@ -1,5 +1,15 @@
 @use "sass:color";
 
+$user_dark: color.scale(
+  $color: #ff9f1c,
+  $blackness: 7%,
+);
+
+$machine_dark: color.scale(
+  $color: #e71d36,
+  $blackness: 15%,
+);
+
 * {
   margin: 0;
   padding: 0;
@@ -55,7 +65,7 @@ body {
       &.primary {
         background-color: #ff9f1c;
         &:hover {
-          background-color: color.scale($color: #ff9f1c, $blackness: 10%);
+          background-color: $user_dark;
         }
       }
 
@@ -76,4 +86,53 @@ body {
   bottom: 32px;
   right: 67px;
   cursor: pointer;
+}
+
+#score {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+
+  > span {
+    font-size: 24px;
+    display: block;
+    margin-right: 12px;
+    font-weight: 300;
+  }
+
+  .score-wrapper {
+    display: flex;
+    width: 204px;
+  }
+
+  .score-badge {
+    width: 50%;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    span {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    &.score-user {
+      background-color: #ffbc60;
+
+      &.is-playing {
+        box-shadow: inset 0px 0px 0px 8px $user_dark;
+      }
+    }
+
+    &.score-machine {
+      background-color: #e71d36;
+
+      &.is-playing {
+        box-shadow: inset 0px 0px 0px 8px $machine_dark;
+      }
+    }
+  }
 }

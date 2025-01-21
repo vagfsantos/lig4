@@ -31,5 +31,7 @@ export class Game {
       this.board.renderBoard();
     });
     this.controller.watchMouseEvents();
+    this.controller.watchMatchEnd();
+    this.controller.watchPlayTurn();
   }
 }

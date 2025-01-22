@@ -67,6 +67,7 @@ export class Board {
       const currentSpots = col.getSpots();
 
       currentSpots.forEach((spot, spotIndex) => {
+        this.ctx.save();
         this.ctx.beginPath();
         this.ctx.arc(
           this.getSpotPosition(columnIndex),
@@ -75,9 +76,18 @@ export class Board {
           0,
           2 * Math.PI
         );
+
         this.ctx.fillStyle = spot.getColor();
+
+        if (spot.getIsMatched()) {
+          this.ctx.strokeStyle = "#000000";
+          this.ctx.lineWidth = 4;
+          this.ctx.stroke();
+        }
+
         this.ctx.fill();
         this.ctx.closePath();
+        this.ctx.restore();
       });
     });
 
@@ -110,6 +120,14 @@ export class Board {
         if (!spot.hasOwner()) {
           spot.inactivate();
         }
+      });
+    });
+  }
+
+  resetAllColumnsSpots() {
+    this.columns.forEach((column) => {
+      column.getSpots().forEach((spot) => {
+        spot.inactivate();
       });
     });
   }
@@ -211,32 +229,37 @@ export class Board {
     if (this.matchResult) return;
 
     const sequence = {
-      [PLAYERS.USER]: 0,
-      [PLAYERS.MACHINE]: 0,
+      [PLAYERS.USER]: [],
+      [PLAYERS.MACHINE]: [],
     };
 
     list.forEach((spots) => {
       spots.forEach((spot) => {
+        if (this.matchResult) return;
+
         if (spot.getState() === PLAYERS.USER) {
-          sequence[PLAYERS.USER]++;
-          sequence[PLAYERS.MACHINE] = 0;
+          sequence[PLAYERS.USER].push(spot);
+          sequence[PLAYERS.MACHINE] = [];
         } else if (spot.getState() === PLAYERS.MACHINE) {
-          sequence[PLAYERS.MACHINE]++;
-          sequence[PLAYERS.USER] = 0;
+          sequence[PLAYERS.MACHINE].push(spot);
+          sequence[PLAYERS.USER] = [];
         } else {
-          sequence[PLAYERS.MACHINE] = 0;
-          sequence[PLAYERS.USER] = 0;
+          sequence[PLAYERS.MACHINE] = [];
+          sequence[PLAYERS.USER] = [];
         }
 
         Object.entries(sequence).forEach(([key, value]) => {
-          if (value >= 4) {
+          if (this.matchResult) return;
+
+          if (value.length >= 4) {
+            value.forEach((s) => s.setAsMatched());
             this.setMatchEnd({ result: key });
           }
         });
       });
 
-      sequence[PLAYERS.USER] = 0;
-      sequence[PLAYERS.MACHINE] = 0;
+      sequence[PLAYERS.USER] = [];
+      sequence[PLAYERS.MACHINE] = [];
     });
   }
 
@@ -247,5 +270,11 @@ export class Board {
   setMatchEnd({ result }) {
     this.matchResult = result;
     this.onMatchEndCallbacks.forEach((callback) => callback({ result }));
+  }
+
+  newGameMatch() {
+    this.resetAllColumnsSpots();
+    this.matchResult = null;
+    this.playTurn = PLAYERS.USER;
   }
 }

@@ -136,3 +136,40 @@ body {
     }
   }
 }
+
+#match-end-modal {
+  width: 410px;
+  height: 187px;
+  background-color: rgba(0, 0, 0, 0.44);
+  position: absolute;
+  margin: auto;
+  right: 191px;
+  bottom: 215px;
+  text-align: center;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0px 120px 0px 0px rgba(0, 0, 0, 0.5);
+
+  &.is-match-ended {
+    display: flex;
+  }
+
+  h3 {
+    font-size: 48px;
+    color: #ffffff;
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+
+  button {
+    width: 190px;
+    height: 55px;
+    background-color: #2ec4b6;
+    color: #000000;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+  }
+}

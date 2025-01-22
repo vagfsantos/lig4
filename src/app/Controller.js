@@ -9,7 +9,17 @@ export class Controller {
       machineScoreElement: document.querySelector("#machine-score-points"),
       userScoreWrapper: document.querySelector("#user-score-wrapper"),
       machineScoreWrapper: document.querySelector("#machine-score-wrapper"),
+      resultModal: document.querySelector("#match-end-modal"),
+      playAgainBtn: document.querySelector("#match-end-play-again-btn"),
+      matchEndResult: document.querySelector("#match-end-result"),
     };
+  }
+
+  watchPlayAgain() {
+    this.UI.playAgainBtn.addEventListener("click", () => {
+      this.board.newGameMatch();
+      this.UI.resultModal.classList.remove("is-match-ended");
+    });
   }
 
   watchMouseEvents() {
@@ -44,14 +54,21 @@ export class Controller {
 
       if (result === PLAYERS.USER) {
         userScore++;
+        this.UI.matchEndResult.textContent = "You won!";
       }
 
       if (result === PLAYERS.MACHINE) {
         machineScore++;
+        this.UI.matchEndResult.textContent = "Machine won!";
+      }
+
+      if (result !== PLAYERS.USER && result !== PLAYERS.MACHINE) {
+        this.UI.matchEndResult.textContent = "Draw";
       }
 
       this.UI.userScoreElement.textContent = userScore;
       this.UI.machineScoreElement.textContent = machineScore;
+      this.UI.resultModal.classList.add("is-match-ended");
     });
   }
 

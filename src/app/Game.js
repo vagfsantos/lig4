@@ -33,5 +33,6 @@ export class Game {
     this.controller.watchMouseEvents();
     this.controller.watchMatchEnd();
     this.controller.watchPlayTurn();
+    this.controller.watchPlayAgain();
   }
 }

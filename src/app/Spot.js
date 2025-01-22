@@ -2,9 +2,14 @@ import { PLAYERS } from "./constants";
 
 export class Spot {
   state = SpotStates.EMPTY;
+  isMatched = false;
 
   getState() {
     return this.state;
+  }
+
+  getIsMatched() {
+    return this.isMatched;
   }
 
   getColor() {
@@ -17,6 +22,11 @@ export class Spot {
 
   inactivate() {
     this.state = SpotStates.EMPTY;
+    this.isMatched = false;
+  }
+
+  setAsMatched() {
+    this.isMatched = true;
   }
 
   setOwnedBy(whichPlayer) {

@@ -6,6 +6,7 @@ import {
   SPOT_RADIUS,
   SPOTS_PER_COLUMNS_COUNT,
 } from "./constants";
+import { MachinePlayer } from "./MachinePlayer";
 import { Spot } from "./Spot";
 
 export class Board {
@@ -21,6 +22,7 @@ export class Board {
     this.height = height;
     this.onMatchEndCallbacks = [];
     this.onPlayTurnChangeCallbacks = [];
+    this.machinePlayer = new MachinePlayer();
     this.columns = Array(COLUMN_COUNT)
       .fill(null)
       .map(() => new Column());
@@ -158,25 +160,11 @@ export class Board {
     window.setTimeout(() => this.maybeMachinePlay(), 1500);
   }
 
-  getColumnIndexesPossibleToPlay() {
-    return this.columns.reduce((availableIndexes, column, index) => {
-      const available = column.hasAvailableSpot() ? [index] : [];
-      return [...availableIndexes, ...available];
-    }, []);
-  }
-
   maybeMachinePlay() {
     if (this.getPlayTurn() === PLAYERS.MACHINE && !this.matchResult) {
-      const columnIndexesAvailable = this.getColumnIndexesPossibleToPlay();
-
-      const randomPosition =
-        columnIndexesAvailable[
-          Math.round(Math.random() * (columnIndexesAvailable.length - 1))
-        ];
-
       this.play({
         whichPlayer: PLAYERS.MACHINE,
-        columnIndex: randomPosition,
+        columnIndex: this.machinePlayer.getColumnIndexToPlayIn(this.columns),
       });
     }
   }

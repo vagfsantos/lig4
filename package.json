@@ -2,15 +2,17 @@
   "name": "lig4",
   "version": "1.0.0",
   "description": "Game app",
-  "main": "index.js",
+  "source": "src/index.html",
   "scripts": {
     "start": "yarn parcel src/index.html",
+    "make-dist": "rm -rf ./game && yarn parcel build --dist-dir ./game --public-url https://vagfsantos.github.io/lig4/game/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vagner Santos",
   "license": "MIT",
   "devDependencies": {
     "@parcel/transformer-sass": "2.13.3",
-    "parcel": "^2.13.3"
+    "parcel": "^2.13.3",
+    "svgo": "^3"
   }
 }

@@ -38,6 +38,10 @@ export class Spot {
       this.state === SpotStates.PLAYER || this.state === SpotStates.MACHINE
     );
   }
+
+  isPlayerOwner() {
+    return this.getState() === SpotStates.PLAYER;
+  }
 }
 
 export const SpotStates = {

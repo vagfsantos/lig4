@@ -66,6 +66,73 @@ export class MachinePlayer {
       }
     });
 
-    return opponentColumnSequences;
+    function getRowSequence(reversed = false) {
+      const opponentRowSequences = [];
+      getBoardRows(boardColumnsState).forEach((row, rowIndex, allRows) => {
+        const hasAvailableSpot = row.some((spot) => !spot.hasOwner());
+
+        if (hasAvailableSpot) {
+          const previousRow = rowIndex > 0 ? allRows[rowIndex - 1] : undefined;
+
+          const spotsOnRow = reversed ? [...row].reverse() : row;
+          let currentSequence = 0;
+
+          spotsOnRow.forEach((spot, spotIndex, allSpots) => {
+            const isOpponentSpot = spot.isPlayerOwner();
+            const hasOwner = spot.hasOwner();
+
+            const reversedSpotIndex = allSpots.length - 1 - spotIndex;
+            const spotBellowHasOwner = previousRow
+              ? previousRow[reversed ? reversedSpotIndex : spotIndex].hasOwner()
+              : true;
+
+            if (isOpponentSpot) {
+              currentSequence++;
+            } else if (!hasOwner && currentSequence > 1 && spotBellowHasOwner) {
+              opponentRowSequences.push({
+                sequence: currentSequence,
+                chosenMoveToColumnIndex: reversed
+                  ? reversedSpotIndex
+                  : spotIndex,
+              });
+              currentSequence = 0;
+            } else {
+              currentSequence = 0;
+            }
+          });
+        }
+      });
+
+      return opponentRowSequences;
+    }
+
+    console.log({
+      columns: opponentColumnSequences,
+      rows: getRowSequence(),
+      rowsReversed: getRowSequence(true),
+    });
+
+    return [
+      ...opponentColumnSequences,
+      ...getRowSequence(),
+      ...getRowSequence(true),
+    ];
   }
+}
+
+function getBoardRows(boardColumnsState) {
+  const rows = [];
+
+  boardColumnsState.forEach((column) => {
+    const spotsForColumn = column.getSpots();
+
+    spotsForColumn.forEach((spot, spotIndex) => {
+      if (Array.isArray(rows[spotIndex])) {
+        return rows[spotIndex].push(spot);
+      }
+      rows[spotIndex] = [spot];
+    });
+  });
+
+  return rows.reverse();
 }

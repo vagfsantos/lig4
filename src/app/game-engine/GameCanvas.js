@@ -1,9 +1,3 @@
-export class GameRenderEngine {
-  render() {
-    this.render();
-  }
-}
-
 export class GameCanvas {
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -21,17 +15,5 @@ export class GameCanvas {
   setCanvasSize(width, height) {
     this.canvas.width = width;
     this.canvas.height = height;
-  }
-}
-
-export class GameObject {}
-
-export class GameController {
-  constructor() {}
-
-  init() {
-    // window.requestAnimationFrame(() => {
-    //   this.renderEngine.render();
-    // });
   }
 }

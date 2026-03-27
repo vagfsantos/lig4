@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Game app",
   "source": "src/index.html",
+  "alias": {
+    "@game-engine/*": "./src/app/game-engine/$1",
+    "@lig4/*": "./src/app/lig4/$1"
+  },
   "scripts": {
     "start": "yarn parcel src/index.html",
     "make-dist": "rm -rf ./game && yarn parcel build --dist-dir ./game --public-url https://vagfsantos.github.io/lig4/game/",

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@game-engine/*": ["./app/game-engine/*"],
+      "@lig4/*": ["./app/lig4/*"]
+    }
+  }
+}

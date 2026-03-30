@@ -1,25 +1,25 @@
-import { GameRenderEngine } from "./GameEngine";
+import { GameRenderEngine } from './GameEngine'
 
 export class GameController {
-  gameObjectsList = [];
+  gameObjectsList = []
 
   constructor({ gameCanvas }) {
-    this.gameCanvas = gameCanvas;
-    this.renderEngine = new GameRenderEngine();
+    this.gameCanvas = gameCanvas
+    this.renderEngine = new GameRenderEngine()
   }
 
   addGameObject({ gameObject }) {
     const isGameObjectAlreadyAdded = this.gameObjectsList.find(
-      ({ name }) => name === gameObject.name,
-    );
+      ({ name }) => name === gameObject.name
+    )
 
     if (isGameObjectAlreadyAdded) {
       throw new Error(
-        `Game object with name: ${gameObject.name} is} already added`,
-      );
+        `Game object with name: ${gameObject.name} is} already added`
+      )
     }
 
-    this.gameObjectsList.push(gameObject);
+    this.gameObjectsList.push(gameObject)
   }
 
   startGame() {
@@ -27,7 +27,7 @@ export class GameController {
       this.renderEngine.render({
         gameCanvas: this.gameCanvas,
         gameObjectsList: this.gameObjectsList,
-      });
-    });
+      })
+    })
   }
 }

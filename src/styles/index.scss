@@ -1,4 +1,4 @@
-@use "sass:color";
+@use 'sass:color';
 
 $user_dark: color.scale(
   $color: #ff9f1c,
@@ -20,7 +20,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Alexandria", serif;
+  font-family: 'Alexandria', serif;
   font-optical-sizing: auto;
 }
 

@@ -1,34 +1,34 @@
 export function getBoardRows(boardColumnsState) {
-  const rows = [];
+  const rows = []
 
   boardColumnsState.forEach((column) => {
-    const spotsForColumn = column.getSpots();
+    const spotsForColumn = column.getSpots()
 
     spotsForColumn.forEach((spot, spotIndex) => {
       if (Array.isArray(rows[spotIndex])) {
-        return rows[spotIndex].push(spot);
+        return rows[spotIndex].push(spot)
       }
-      rows[spotIndex] = [spot];
-    });
-  });
+      rows[spotIndex] = [spot]
+    })
+  })
 
-  return rows.reverse();
+  return rows.reverse()
 }
 
 export function getBoardDiagonalColumn(boardColumnsState) {
-  const diagonalColumns = [];
+  const diagonalColumns = []
 
   boardColumnsState.forEach((column, columnIndex) => {
-    const spotsForColumn = column.getSpots();
+    const spotsForColumn = column.getSpots()
 
     spotsForColumn.forEach((spot, spotIndex) => {
       if (Array.isArray(diagonalColumns[spotIndex + columnIndex])) {
-        return diagonalColumns[spotIndex + columnIndex].push(spot);
+        return diagonalColumns[spotIndex + columnIndex].push(spot)
       } else if (diagonalColumns[spotIndex + columnIndex] == undefined) {
-        diagonalColumns[spotIndex + columnIndex] = [spot];
+        diagonalColumns[spotIndex + columnIndex] = [spot]
       }
-    });
-  });
+    })
+  })
 
-  return diagonalColumns;
+  return diagonalColumns
 }

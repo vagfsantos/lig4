@@ -1,7 +1,7 @@
 export const PLAYERS_ID = {
-  USER: "user",
-  MACHINE: "machine",
-};
+  USER: 'user',
+  MACHINE: 'machine',
+}
 
 export const BOARD_SETTINGS = {
   COLUMNS: 7,
@@ -12,19 +12,19 @@ export const BOARD_SETTINGS = {
   SPOTS_PER_COLUMN: 6,
   CANVAS_WIDTH: 659,
   CANVAS_HEIGHT: 564,
-};
+}
 
 export const SPOT_STATUSES = {
-  DEFAULT: "default",
-  PRE_SELECTED: "pre-selected",
-};
+  DEFAULT: 'default',
+  PRE_SELECTED: 'pre-selected',
+}
 
 export const SPOT_COLORS_BY_STATUS = {
-  [SPOT_STATUSES.DEFAULT]: "#C3C3C3",
-  [SPOT_STATUSES.PRE_SELECTED]: "#FFD192",
-};
+  [SPOT_STATUSES.DEFAULT]: '#C3C3C3',
+  [SPOT_STATUSES.PRE_SELECTED]: '#FFD192',
+}
 export const SPOT_BORDER_COLORS_BY_STATUS = {
   [SPOT_STATUSES.DEFAULT]: SPOT_COLORS_BY_STATUS[SPOT_STATUSES.DEFAULT],
   [SPOT_STATUSES.PRE_SELECTED]:
     SPOT_COLORS_BY_STATUS[SPOT_STATUSES.PRE_SELECTED],
-};
+}

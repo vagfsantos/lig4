@@ -1,138 +1,138 @@
 export class MachinePlayer {
   getColumnIndexToPlayIn(boardColumnsState) {
     const bestDefensiveMoves =
-      this._processBestDefensiveMoves(boardColumnsState);
+      this._processBestDefensiveMoves(boardColumnsState)
     return this._calculateColumnIndextoPlayIn({
       boardColumnsState,
       bestDefensiveMoves,
-    });
+    })
   }
 
   _getColumnIndexesPossibleToPlay(boardColumnsState) {
     return boardColumnsState.reduce((availableIndexes, column, index) => {
-      const available = column.hasAvailableSpot() ? [index] : [];
-      return [...availableIndexes, ...available];
-    }, []);
+      const available = column.hasAvailableSpot() ? [index] : []
+      return [...availableIndexes, ...available]
+    }, [])
   }
 
   _calculateColumnIndextoPlayIn({ boardColumnsState, bestDefensiveMoves }) {
     const columnIndexesAvailable =
-      this._getColumnIndexesPossibleToPlay(boardColumnsState);
+      this._getColumnIndexesPossibleToPlay(boardColumnsState)
 
     const randomPosition =
       columnIndexesAvailable[
         Math.round(Math.random() * (columnIndexesAvailable.length - 1))
-      ];
+      ]
 
     const bestDefensiveSingleMove =
       bestDefensiveMoves.length > 0 &&
       bestDefensiveMoves.reduce((bestMove, currentMove) => {
         return bestMove?.sequence > currentMove.sequence
           ? bestMove
-          : currentMove;
-      });
+          : currentMove
+      })
 
     return bestDefensiveSingleMove
       ? bestDefensiveSingleMove.chosenMoveToColumnIndex
-      : randomPosition;
+      : randomPosition
   }
 
   _processBestDefensiveMoves(boardColumnsState) {
-    const opponentColumnSequences = [];
+    const opponentColumnSequences = []
 
     boardColumnsState.forEach((column, columnIndex) => {
-      const hasAvailableSpot = column.hasAvailableSpot();
+      const hasAvailableSpot = column.hasAvailableSpot()
 
       if (hasAvailableSpot) {
-        const spotsOrderedDownToTop = [...column.getSpots()].reverse();
-        let currentSequence = 0;
+        const spotsOrderedDownToTop = [...column.getSpots()].reverse()
+        let currentSequence = 0
 
         spotsOrderedDownToTop.forEach((spot) => {
-          const isOpponentSpot = spot.isPlayerOwner();
-          const hasOwner = spot.hasOwner();
+          const isOpponentSpot = spot.isPlayerOwner()
+          const hasOwner = spot.hasOwner()
 
           if (isOpponentSpot) {
-            currentSequence++;
+            currentSequence++
           } else if (!hasOwner && currentSequence > 1) {
             opponentColumnSequences.push({
               sequence: currentSequence,
               chosenMoveToColumnIndex: columnIndex,
-            });
-            currentSequence = 0;
+            })
+            currentSequence = 0
           } else {
-            currentSequence = 0;
+            currentSequence = 0
           }
-        });
+        })
       }
-    });
+    })
 
     function getRowSequence(reversed = false) {
-      const opponentRowSequences = [];
+      const opponentRowSequences = []
       getBoardRows(boardColumnsState).forEach((row, rowIndex, allRows) => {
-        const hasAvailableSpot = row.some((spot) => !spot.hasOwner());
+        const hasAvailableSpot = row.some((spot) => !spot.hasOwner())
 
         if (hasAvailableSpot) {
-          const previousRow = rowIndex > 0 ? allRows[rowIndex - 1] : undefined;
+          const previousRow = rowIndex > 0 ? allRows[rowIndex - 1] : undefined
 
-          const spotsOnRow = reversed ? [...row].reverse() : row;
-          let currentSequence = 0;
+          const spotsOnRow = reversed ? [...row].reverse() : row
+          let currentSequence = 0
 
           spotsOnRow.forEach((spot, spotIndex, allSpots) => {
-            const isOpponentSpot = spot.isPlayerOwner();
-            const hasOwner = spot.hasOwner();
+            const isOpponentSpot = spot.isPlayerOwner()
+            const hasOwner = spot.hasOwner()
 
-            const reversedSpotIndex = allSpots.length - 1 - spotIndex;
+            const reversedSpotIndex = allSpots.length - 1 - spotIndex
             const spotBellowHasOwner = previousRow
               ? previousRow[reversed ? reversedSpotIndex : spotIndex].hasOwner()
-              : true;
+              : true
 
             if (isOpponentSpot) {
-              currentSequence++;
+              currentSequence++
             } else if (!hasOwner && currentSequence > 1 && spotBellowHasOwner) {
               opponentRowSequences.push({
                 sequence: currentSequence,
                 chosenMoveToColumnIndex: reversed
                   ? reversedSpotIndex
                   : spotIndex,
-              });
-              currentSequence = 0;
+              })
+              currentSequence = 0
             } else {
-              currentSequence = 0;
+              currentSequence = 0
             }
-          });
+          })
         }
-      });
+      })
 
-      return opponentRowSequences;
+      return opponentRowSequences
     }
 
     console.log({
       columns: opponentColumnSequences,
       rows: getRowSequence(),
       rowsReversed: getRowSequence(true),
-    });
+    })
 
     return [
       ...opponentColumnSequences,
       ...getRowSequence(),
       ...getRowSequence(true),
-    ];
+    ]
   }
 }
 
 function getBoardRows(boardColumnsState) {
-  const rows = [];
+  const rows = []
 
   boardColumnsState.forEach((column) => {
-    const spotsForColumn = column.getSpots();
+    const spotsForColumn = column.getSpots()
 
     spotsForColumn.forEach((spot, spotIndex) => {
       if (Array.isArray(rows[spotIndex])) {
-        return rows[spotIndex].push(spot);
+        return rows[spotIndex].push(spot)
       }
-      rows[spotIndex] = [spot];
-    });
-  });
+      rows[spotIndex] = [spot]
+    })
+  })
 
-  return rows.reverse();
+  return rows.reverse()
 }

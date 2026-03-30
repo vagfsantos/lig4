@@ -10,13 +10,19 @@
   "scripts": {
     "start": "yarn parcel src/index.html",
     "make-dist": "rm -rf ./game && yarn parcel build --dist-dir ./game --public-url https://vagfsantos.github.io/lig4/game/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . && prettier .",
+    "format": "eslint --fix . && prettier --write ."
   },
   "author": "Vagner Santos",
   "license": "MIT",
   "devDependencies": {
     "@parcel/transformer-sass": "2.13.3",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "parcel": "^2.13.3",
+    "prettier": "^3.8.1",
     "svgo": "^3"
   }
 }

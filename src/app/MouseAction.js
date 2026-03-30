@@ -38,7 +38,7 @@ export class MouseAction {
   }
 
   watchMouseOut() {
-    this.canvas.addEventListener('mouseout', (event) => {
+    this.canvas.addEventListener('mouseout', () => {
       this.mouseOutCallbacks.forEach((callback) => callback())
     })
   }

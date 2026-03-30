@@ -1,8 +1,8 @@
 import { GAME_OBJECT_TYPES, GameObject } from '@game-engine/GameObject'
 import {
-  SPOT_COLORS_BY_STATUS,
   BOARD_SETTINGS,
   SPOT_BORDER_COLORS_BY_STATUS,
+  SPOT_COLORS_BY_STATUS,
 } from '@lig4/constants/gameSettings'
 
 export class SpotObject extends GameObject {

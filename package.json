@@ -3,30 +3,41 @@
   "version": "1.0.0",
   "description": "Game app",
   "source": "src/index.html",
+  "type": "module",
   "alias": {
     "@game-engine/*": "./src/app/game-engine/$1",
     "@lig4/*": "./src/app/lig4/$1"
   },
   "scripts": {
+    "prepare": "husky install",
     "start": "yarn parcel src/index.html",
     "make-dist": "rm -rf ./game && yarn parcel build --dist-dir ./game --public-url https://vagfsantos.github.io/lig4/game/",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . && prettier .",
-    "format": "eslint --fix . && prettier --write ."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "pre-commit": [
-    "lint"
-  ],
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --quiet --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  },
   "author": "Vagner Santos",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@parcel/transformer-sass": "2.13.3",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "parcel": "^2.13.3",
     "pre-commit": "^1.2.2",
     "prettier": "^3.8.1",
     "svgo": "^3"
+  },
+  "dependencies": {
+    "global": "^4.4.0"
   }
 }

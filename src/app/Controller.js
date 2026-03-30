@@ -29,7 +29,7 @@ export class Controller {
     this.mouseAction.onMouseClick((...args) => this.onMousClick(...args))
   }
 
-  onMouseMove({ positionX, positionY }) {
+  onMouseMove({ positionX }) {
     this.board.setColumnActive({ positionX })
   }
 
@@ -37,7 +37,7 @@ export class Controller {
     this.board.setAllColumnsInactive()
   }
 
-  onMousClick({ positionX, positionY }) {
+  onMousClick({ positionX }) {
     if (this.board.getPlayTurn() === PLAYERS.USER) {
       this.board.play({
         whichPlayer: PLAYERS.USER,

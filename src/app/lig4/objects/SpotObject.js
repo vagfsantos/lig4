@@ -18,8 +18,8 @@ export class SpotObject extends GameObject {
 
     this.diameterSize =
       BOARD_SETTINGS.SPOT_RADIUS * 2 + BOARD_SETTINGS.SPOT_BORDER_WIDTH * 2;
-
-    console.log({ size: this.diameterSize });
+    this.width = this.diameterSize;
+    this.height = this.diameterSize;
   }
 
   render({ gameCanvas }) {
@@ -27,7 +27,6 @@ export class SpotObject extends GameObject {
     const xCoordinate = this.x + this.diameterSize / 2;
     const yCoordinate = this.y + this.diameterSize / 2;
 
-    ctx.save();
     ctx.beginPath();
     ctx.arc(
       xCoordinate,
@@ -41,7 +40,10 @@ export class SpotObject extends GameObject {
     ctx.lineWidth = BOARD_SETTINGS.SPOT_BORDER_WIDTH;
     ctx.strokeStyle = this._getBorderColor();
     ctx.stroke();
-    ctx.restore();
+  }
+
+  setStatus(status) {
+    this.state.status = status;
   }
 
   _getColor() {

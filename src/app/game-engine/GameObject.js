@@ -6,6 +6,7 @@ export const GAME_OBJECT_TYPES = {
 class GameObjectEvent {
   events = {
     mousemove: [],
+    click: [],
   }
 
   onEvent({ name, callback }) {

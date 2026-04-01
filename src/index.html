@@ -32,19 +32,24 @@
       </nav>
 
       <section id="score">
-        <span>Score</span>
-
+        <div>
+          <span id="player-turn-msg" class="score-title"></span>
+        </div>
         <div class="score-wrapper">
-          <div
-            id="user-score-wrapper"
-            class="score-badge score-user is-playing"
-          >
-            <img src="./img/user.svg" />
-            <span id="user-score-points">0</span>
-          </div>
-          <div id="machine-score-wrapper" class="score-badge score-machine">
-            <span id="machine-score-points">0</span>
-            <img src="./img/machine.svg" />
+          <span class="score-title">Score</span>
+
+          <div class="score-match-wrapper">
+            <div
+              id="user-score-wrapper"
+              class="score-badge score-user is-playing"
+            >
+              <img src="./img/user.svg" />
+              <span id="user-score-points">0</span>
+            </div>
+            <div id="machine-score-wrapper" class="score-badge score-machine">
+              <span id="machine-score-points">0</span>
+              <img src="./img/machine.svg" />
+            </div>
           </div>
         </div>
       </section>

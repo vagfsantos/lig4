@@ -1,8 +1,10 @@
 import { GAME_OBJECT_TYPES, GameObject } from '@game-engine/GameObject'
 import {
   BOARD_SETTINGS,
+  PLAYERS_ID,
   SPOT_BORDER_COLORS_BY_STATUS,
   SPOT_COLORS_BY_STATUS,
+  SPOT_STATUSES,
 } from '@lig4/constants/gameSettings'
 
 export class SpotObject extends GameObject {
@@ -46,6 +48,24 @@ export class SpotObject extends GameObject {
     this.state.status = status
   }
 
+  getOwner() {
+    return this.state.owner
+  }
+
+  setOwner(owner) {
+    if (this.state.owner === null) {
+      this.state.owner = owner
+      this.setStatus(
+        owner === PLAYERS_ID.USER
+          ? SPOT_STATUSES.OWNER_USER
+          : SPOT_STATUSES.OWNER_MACHINE
+      )
+    }
+  }
+
+  hasOwner() {
+    return this.state.owner != null
+  }
   _getColor() {
     return SPOT_COLORS_BY_STATUS[this.state.status]
   }

@@ -29,6 +29,7 @@ body {
   height: 700px;
   position: relative;
   background-color: #e5e5e5;
+  overflow: hidden;
 
   header {
     width: 100%;
@@ -89,22 +90,50 @@ body {
 }
 
 #score {
+  width: 70%;
   position: absolute;
-  top: 0;
+  top: 26px;
   right: 0;
-  display: flex;
   align-items: center;
+  display: flex;
+  justify-content: space-between;
+  visibility: hidden;
 
-  > span {
+  .score-title {
     font-size: 24px;
     display: block;
     margin-right: 12px;
     font-weight: 300;
   }
 
+  #player-turn-msg {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: 0.4s ease-in;
+  }
+
   .score-wrapper {
     display: flex;
+    align-items: center;
+
+    opacity: 0;
+    transform: translateX(200px);
+    transition: 0.4s ease-in;
+  }
+
+  &.is-game-started {
+    visibility: visible;
+
+    #player-turn-msg,
+    .score-wrapper {
+      opacity: 1;
+      transform: translateX(0px);
+    }
+  }
+
+  .score-match-wrapper {
     width: 204px;
+    display: flex;
   }
 
   .score-badge {

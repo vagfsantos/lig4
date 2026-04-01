@@ -1,23 +1,12 @@
 import { GameCanvas } from '@game-engine/GameCanvas'
 import { GameController } from '@game-engine/GameController'
-import { GAME_OBJECT_TYPES, GameObject } from '@game-engine/GameObject'
-import { BOARD_SETTINGS, SPOT_STATUSES } from '@lig4/constants/gameSettings'
+import {
+  BOARD_SETTINGS,
+  PLAYERS_ID,
+  SPOT_STATUSES,
+} from '@lig4/constants/gameSettings'
+import { ColumnEventObject } from '@lig4/objects/ColumnEventObject'
 import { SpotObject } from '@lig4/objects/SpotObject'
-
-class ColumnEventObject extends GameObject {
-  debugMode = false
-  type = GAME_OBJECT_TYPES.STATIC
-
-  render({ gameCanvas }) {
-    if (this.debugMode) {
-      const ctx = gameCanvas.getCanvasContext()
-      ctx.beginPath()
-      ctx.strokeStyle = 'red'
-      ctx.strokeRect(this.x, this.y, this.width, this.height)
-      ctx.stroke()
-    }
-  }
-}
 
 export class Lig4Controller {
   canvas = new GameCanvas()
@@ -25,41 +14,123 @@ export class Lig4Controller {
   boardSpotsByColumn = null
   columnEventPlaceholders = []
 
+  _onPlayerTurnChangeCallbackList = []
+  _playerTurn = null
+
   init() {
     this._setupCanvas()
     this._setupSpotsOnBoard()
-    this._createColumnEvents()
+  }
+
+  startGame() {
+    this._createColumnEventObjects()
     this._setupEvents()
+    this._togglePlayerTurn()
+  }
+
+  onPlayerTurnChange(callback) {
+    this._onPlayerTurnChangeCallbackList.push(callback)
+  }
+
+  _runOnPlayerTurnChangeCallbacks() {
+    this._onPlayerTurnChangeCallbackList.forEach((callback) => {
+      callback({ playerTurn: this._playerTurn })
+    })
+  }
+
+  _togglePlayerTurn() {
+    const currentPlayerTurn = this._playerTurn
+    if (
+      currentPlayerTurn === null ||
+      currentPlayerTurn === PLAYERS_ID.MACHINE
+    ) {
+      this._playerTurn = PLAYERS_ID.USER
+    } else {
+      this._playerTurn = PLAYERS_ID.MACHINE
+      this._setAllAvailableSpotsAsDefault()
+    }
+
+    this._runOnPlayerTurnChangeCallbacks()
   }
 
   _setupEvents() {
     this._setupColumnEventsMouseOver()
-  }
-
-  _setupColumnEventsMouseOver() {
-    this.columnEventPlaceholders.forEach((column, columnIndex) => {
-      const theSpots = this.boardSpotsByColumn[columnIndex]
-
-      column.onEvent({
-        name: 'mousemove',
-        callback: ({ isInsideGameObjectArea }) => {
-          if (isInsideGameObjectArea) {
-            theSpots.forEach((spot) => {
-              spot.setStatus(SPOT_STATUSES.PRE_SELECTED)
-            })
-          } else {
-            theSpots.forEach((spot) => {
-              spot.setStatus(SPOT_STATUSES.DEFAULT)
-            })
-          }
-        },
-      })
-
+    this._setupColumnEventsClick()
+    this.columnEventPlaceholders.forEach((column) => {
       column.watchForEvents({ DOMElement: this.canvas.getCanvas() })
     })
   }
 
-  _createColumnEvents() {
+  _setupColumnEventsMouseOver() {
+    this.columnEventPlaceholders.forEach((column, columnIndex) => {
+      column.onEvent({
+        name: 'mousemove',
+        callback: ({ isInsideGameObjectArea }) => {
+          const isUserPlayTurn = this._playerTurn === PLAYERS_ID.USER
+
+          if (!isUserPlayTurn) return
+
+          if (isInsideGameObjectArea) {
+            this._setAvailableSpotsAsPreSelectedOnColumnIndex({ columnIndex })
+          } else {
+            this._setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex })
+          }
+        },
+      })
+    })
+  }
+
+  _setupColumnEventsClick() {
+    this.columnEventPlaceholders.forEach((column, columnIndex) => {
+      column.onEvent({
+        name: 'click',
+        callback: ({ isInsideGameObjectArea }) => {
+          if (isInsideGameObjectArea) {
+            this._setOwnerToFirstAvailableSpotOnColumnIndex({ columnIndex })
+          }
+        },
+      })
+    })
+  }
+
+  _setOwnerToFirstAvailableSpotOnColumnIndex({ columnIndex }) {
+    const columnSpots = this.boardSpotsByColumn[columnIndex]
+
+    const availableSpot = columnSpots.find((spot) => spot.getOwner() === null)
+
+    if (availableSpot) {
+      availableSpot?.setOwner(PLAYERS_ID.USER)
+      this._togglePlayerTurn()
+    }
+  }
+
+  _setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex }) {
+    const columnSpots = this.boardSpotsByColumn[columnIndex]
+
+    columnSpots.forEach((spot) => {
+      if (!spot.hasOwner()) {
+        spot.setStatus(SPOT_STATUSES.DEFAULT)
+      }
+    })
+  }
+
+  _setAllAvailableSpotsAsDefault() {
+    this.boardSpotsByColumn.forEach((_, columnIndex) => {
+      this._setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex })
+    })
+  }
+
+  _setAvailableSpotsAsPreSelectedOnColumnIndex({ columnIndex }) {
+    const columnSpots = this.boardSpotsByColumn[columnIndex]
+
+    columnSpots.forEach((spot) => {
+      if (!spot.hasOwner()) {
+        spot.setStatus(SPOT_STATUSES.PRE_SELECTED)
+      }
+    })
+  }
+
+  _createColumnEventObjects() {
     const spotExample = this.boardSpotsByColumn[0][0]
     const { height: canvasHeight } = this.canvas.getCanvasSize()
 

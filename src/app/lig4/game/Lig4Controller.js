@@ -1,79 +1,108 @@
 import { GameCanvas } from '@game-engine/GameCanvas'
 import { GameController } from '@game-engine/GameController'
-import {
-  BOARD_SETTINGS,
-  PLAYERS_ID,
-  SPOT_STATUSES,
-} from '@lig4/constants/gameSettings'
+import { BOARD_SETTINGS, PLAYERS_ID } from '@lig4/constants/gameSettings'
+import { Lig4Board } from '@lig4/game/Lig4Board'
+import { Lig4Machine } from '@lig4/game/Lig4Machine'
+import { Lig4RoundController } from '@lig4/game/Lig4RoundController'
 import { ColumnEventObject } from '@lig4/objects/ColumnEventObject'
-import { SpotObject } from '@lig4/objects/SpotObject'
 
 export class Lig4Controller {
-  canvas = new GameCanvas()
-  controller = null
-  boardSpotsByColumn = null
-  columnEventPlaceholders = []
+  Canvas = new GameCanvas()
+  Controller = null
+  Machine = null
+  RoundController = null
+  Board = null
 
-  _onPlayerTurnChangeCallbackList = []
-  _playerTurn = null
+  _columnEventPlaceholders = []
 
   init() {
-    this._setupCanvas()
-    this._setupSpotsOnBoard()
+    this.Canvas.setCanvasSize(
+      BOARD_SETTINGS.CANVAS_WIDTH,
+      BOARD_SETTINGS.CANVAS_HEIGHT
+    )
+
+    this.Controller = new GameController({
+      gameCanvas: this.Canvas,
+    })
+    this.Board = new Lig4Board({ gameCanvas: this.Canvas })
+    this.Machine = new Lig4Machine({ Board: this.Board })
+    this.RoundController = new Lig4RoundController()
+
+    this.Board.init()
+    this.Board.getColumns().forEach((column) => {
+      column.forEach((spot) => {
+        this.Controller.addGameObject({ gameObject: spot })
+      })
+    })
+
+    this.Controller.startGame()
   }
 
   startGame() {
     this._createColumnEventObjects()
     this._setupEvents()
-    this._togglePlayerTurn()
+
+    this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
+    this.RoundController.onRoundChange(() => this._machinePlay())
   }
 
   onPlayerTurnChange(callback) {
-    this._onPlayerTurnChangeCallbackList.push(callback)
+    this.RoundController.onRoundChange(callback)
   }
 
-  _runOnPlayerTurnChangeCallbacks() {
-    this._onPlayerTurnChangeCallbackList.forEach((callback) => {
-      callback({ playerTurn: this._playerTurn })
-    })
-  }
+  _machinePlay() {
+    this.Board.setAllAvailableSpotsAsDefault()
 
-  _togglePlayerTurn() {
-    const currentPlayerTurn = this._playerTurn
-    if (
-      currentPlayerTurn === null ||
-      currentPlayerTurn === PLAYERS_ID.MACHINE
-    ) {
-      this._playerTurn = PLAYERS_ID.USER
-    } else {
-      this._playerTurn = PLAYERS_ID.MACHINE
-      this._setAllAvailableSpotsAsDefault()
+    if (!this.RoundController.isMachinesTurn() || this.Board.isBoardFull()) {
+      return
     }
 
-    this._runOnPlayerTurnChangeCallbacks()
+    const whereToPlay = this.Machine.whereToplay({
+      spotsByColumn: this.Board.getColumns(),
+    })
+
+    window.setTimeout(() => {
+      this.Board.setOwnerToFirstAvailableSpotOnColumnIndex({
+        columnIndex: whereToPlay.columIndex,
+        owner: PLAYERS_ID.MACHINE,
+      })
+      this.RoundController.togglePlayTurn()
+    }, 500)
+  }
+
+  _userPlayOnColumn({ columnIndex }) {
+    try {
+      this.Board.setOwnerToFirstAvailableSpotOnColumnIndex({
+        columnIndex,
+        owner: PLAYERS_ID.USER,
+      })
+      this.RoundController.togglePlayTurn()
+    } catch (e) {
+      console.info(e)
+    }
   }
 
   _setupEvents() {
     this._setupColumnEventsMouseOver()
     this._setupColumnEventsClick()
-    this.columnEventPlaceholders.forEach((column) => {
-      column.watchForEvents({ DOMElement: this.canvas.getCanvas() })
+    this._columnEventPlaceholders.forEach((column) => {
+      column.watchForEvents({ DOMElement: this.Canvas.getCanvas() })
     })
   }
 
   _setupColumnEventsMouseOver() {
-    this.columnEventPlaceholders.forEach((column, columnIndex) => {
+    this._columnEventPlaceholders.forEach((column, columnIndex) => {
       column.onEvent({
         name: 'mousemove',
         callback: ({ isInsideGameObjectArea }) => {
-          const isUserPlayTurn = this._playerTurn === PLAYERS_ID.USER
-
-          if (!isUserPlayTurn) return
+          if (!this.RoundController.isUsersTurn()) return
 
           if (isInsideGameObjectArea) {
-            this._setAvailableSpotsAsPreSelectedOnColumnIndex({ columnIndex })
+            this.Board.setAvailableSpotsAsPreSelectedOnColumnIndex({
+              columnIndex,
+            })
           } else {
-            this._setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex })
+            this.Board.setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex })
           }
         },
       })
@@ -81,60 +110,23 @@ export class Lig4Controller {
   }
 
   _setupColumnEventsClick() {
-    this.columnEventPlaceholders.forEach((column, columnIndex) => {
+    this._columnEventPlaceholders.forEach((column, columnIndex) => {
       column.onEvent({
         name: 'click',
         callback: ({ isInsideGameObjectArea }) => {
-          if (isInsideGameObjectArea) {
-            this._setOwnerToFirstAvailableSpotOnColumnIndex({ columnIndex })
+          if (isInsideGameObjectArea && this.RoundController.isUsersTurn()) {
+            this._userPlayOnColumn({ columnIndex })
           }
         },
       })
     })
   }
 
-  _setOwnerToFirstAvailableSpotOnColumnIndex({ columnIndex }) {
-    const columnSpots = this.boardSpotsByColumn[columnIndex]
-
-    const availableSpot = columnSpots.find((spot) => spot.getOwner() === null)
-
-    if (availableSpot) {
-      availableSpot?.setOwner(PLAYERS_ID.USER)
-      this._togglePlayerTurn()
-    }
-  }
-
-  _setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex }) {
-    const columnSpots = this.boardSpotsByColumn[columnIndex]
-
-    columnSpots.forEach((spot) => {
-      if (!spot.hasOwner()) {
-        spot.setStatus(SPOT_STATUSES.DEFAULT)
-      }
-    })
-  }
-
-  _setAllAvailableSpotsAsDefault() {
-    this.boardSpotsByColumn.forEach((_, columnIndex) => {
-      this._setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex })
-    })
-  }
-
-  _setAvailableSpotsAsPreSelectedOnColumnIndex({ columnIndex }) {
-    const columnSpots = this.boardSpotsByColumn[columnIndex]
-
-    columnSpots.forEach((spot) => {
-      if (!spot.hasOwner()) {
-        spot.setStatus(SPOT_STATUSES.PRE_SELECTED)
-      }
-    })
-  }
-
   _createColumnEventObjects() {
-    const spotExample = this.boardSpotsByColumn[0][0]
-    const { height: canvasHeight } = this.canvas.getCanvasSize()
+    const spotExample = this.Board.getColumns()[0][0]
+    const { height: canvasHeight } = this.Canvas.getCanvasSize()
 
-    this.boardSpotsByColumn.forEach((_, columnIndex) => {
+    this.Board.getColumns().forEach((_, columnIndex) => {
       const columnGameObject = new ColumnEventObject({
         name: `column-${columnIndex}`,
       })
@@ -145,50 +137,9 @@ export class Lig4Controller {
       columnGameObject.x =
         columnIndex * (spotExample.diameterSize + BOARD_SETTINGS.SPOT_MARGIN_X)
       columnGameObject.width = spotExample.diameterSize
-      this.columnEventPlaceholders.push(columnGameObject)
+      this._columnEventPlaceholders.push(columnGameObject)
 
-      this.controller.addGameObject({ gameObject: columnGameObject })
+      this.Controller.addGameObject({ gameObject: columnGameObject })
     })
-  }
-
-  _setupSpotsOnBoard() {
-    const columns = new Array(BOARD_SETTINGS.COLUMNS).fill(null)
-    const spotsPerColumn = new Array(BOARD_SETTINGS.SPOTS_PER_COLUMN).fill(null)
-
-    const { height: canvasHeight } = this.canvas.getCanvasSize()
-
-    const boardSpotsByColumn = columns.map((_, columnIndex) => {
-      return spotsPerColumn.map((_, spotIndex) => {
-        const spot = new SpotObject({
-          name: `spot-col-${columnIndex}-num-${spotIndex}`,
-        })
-
-        const x =
-          columnIndex * (spot.diameterSize + BOARD_SETTINGS.SPOT_MARGIN_X)
-        const yOffset =
-          spot.diameterSize + (spotIndex && BOARD_SETTINGS.SPOT_MARGIN_Y)
-        const y = canvasHeight - yOffset * (spotIndex + 1) // y-offset columns are placed bottom to up
-
-        spot.setCoordinates({ x, y })
-        this.controller.addGameObject({ gameObject: spot })
-
-        return spot
-      })
-    })
-
-    this.boardSpotsByColumn = boardSpotsByColumn
-  }
-
-  _setupCanvas() {
-    this.canvas.setCanvasSize(
-      BOARD_SETTINGS.CANVAS_WIDTH,
-      BOARD_SETTINGS.CANVAS_HEIGHT
-    )
-
-    this.controller = new GameController({
-      gameCanvas: this.canvas,
-    })
-
-    this.controller.startGame()
   }
 }

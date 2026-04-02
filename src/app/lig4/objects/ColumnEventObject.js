@@ -1,7 +1,7 @@
 import { GAME_OBJECT_TYPES, GameObject } from '@game-engine/GameObject'
 
 export class ColumnEventObject extends GameObject {
-  debugMode = false
+  debugMode = true
   type = GAME_OBJECT_TYPES.STATIC
 
   render({ gameCanvas }) {

@@ -2,20 +2,35 @@ import { GameCanvas } from '@game-engine/GameCanvas'
 import { GameController } from '@game-engine/GameController'
 import { BOARD_SETTINGS, PLAYERS_ID } from '@lig4/constants/gameSettings'
 import { Lig4Board } from '@lig4/game/Lig4Board'
+import { Lig4GameRules } from '@lig4/game/Lig4GameRules'
 import { Lig4Machine } from '@lig4/game/Lig4Machine'
 import { Lig4RoundController } from '@lig4/game/Lig4RoundController'
+import { Lig4UX } from '@lig4/game/Lig4UX'
 import { ColumnEventObject } from '@lig4/objects/ColumnEventObject'
 
 export class Lig4Controller {
   Canvas = new GameCanvas()
+  RoundController = new Lig4RoundController()
   Controller = null
   Machine = null
-  RoundController = null
   Board = null
+  UX = null
+  GameRules = null
 
   _columnEventPlaceholders = []
 
   init() {
+    this._setup()
+    this._setupBoard()
+    this._setupColumnPlaceholders()
+    this._setupEvents()
+    this._setupUX()
+    this._setupRounds()
+
+    this.Controller.startGame()
+  }
+
+  _setup() {
     this.Canvas.setCanvasSize(
       BOARD_SETTINGS.CANVAS_WIDTH,
       BOARD_SETTINGS.CANVAS_HEIGHT
@@ -26,28 +41,46 @@ export class Lig4Controller {
     })
     this.Board = new Lig4Board({ gameCanvas: this.Canvas })
     this.Machine = new Lig4Machine({ Board: this.Board })
-    this.RoundController = new Lig4RoundController()
+    this.UX = new Lig4UX()
+    this.GameRules = new Lig4GameRules({ Board: this.Board })
+  }
 
+  _setupBoard() {
     this.Board.init()
     this.Board.getColumns().forEach((column) => {
       column.forEach((spot) => {
         this.Controller.addGameObject({ gameObject: spot })
       })
     })
-
-    this.Controller.startGame()
   }
 
-  startGame() {
-    this._createColumnEventObjects()
-    this._setupEvents()
+  _setupUX() {
+    this.UX.init({ gameCanvas: this.Canvas.getCanvas() })
+    this.UX.onStartGame(() => {
+      this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
+    })
+  }
 
-    this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
+  _setupRounds() {
     this.RoundController.onRoundChange(() => this._machinePlay())
+    this.RoundController.onRoundChange(({ playerTurn }) => {
+      if (this.GameRules.isMatchOver()) {
+        alert('End game')
+      }
+      this.UX.onPlayerTurnChange({ playerTurn })
+    })
   }
 
-  onPlayerTurnChange(callback) {
-    this.RoundController.onRoundChange(callback)
+  _setupColumnPlaceholders() {
+    this._createColumnEventObjects()
+  }
+
+  _setupEvents() {
+    this._setupColumnEventsMouseOver()
+    this._setupColumnEventsClick()
+    this._columnEventPlaceholders.forEach((column) => {
+      column.watchForEvents({ DOMElement: this.Canvas.getCanvas() })
+    })
   }
 
   _machinePlay() {
@@ -80,14 +113,6 @@ export class Lig4Controller {
     } catch (e) {
       console.info(e)
     }
-  }
-
-  _setupEvents() {
-    this._setupColumnEventsMouseOver()
-    this._setupColumnEventsClick()
-    this._columnEventPlaceholders.forEach((column) => {
-      column.watchForEvents({ DOMElement: this.Canvas.getCanvas() })
-    })
   }
 
   _setupColumnEventsMouseOver() {

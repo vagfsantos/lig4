@@ -209,5 +209,24 @@ body {
     font-size: 24px;
     cursor: pointer;
     border: none;
+
+    transition: 0.2s background-color ease-in;
+
+    &:hover {
+      background-color: #26e6d3;
+    }
   }
+}
+
+.match-result-modal {
+  width: 410px;
+  height: 187px;
+  background-color: linear-gradient(black 60%, rgba(0, 0, 0, 0.44));
+  position: absolute;
+  margin: auto;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  text-align: center;
 }

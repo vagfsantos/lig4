@@ -13,8 +13,6 @@ const DIAGONALS_COLUMNS = new Array(
 export class Lig4Board {
   Canvas = null
 
-  _columnsWithSpots = null
-
   _verticalSpots = []
   _horizontalSpots = SPOTS_PER_COLUMN_PLACEHOLDER.map(() => [])
   _diagonalSpotsLeftToRight = DIAGONALS_COLUMNS.map(() => [])
@@ -29,17 +27,29 @@ export class Lig4Board {
   }
 
   getColumns() {
-    return this._columnsWithSpots
+    return this._verticalSpots
+  }
+
+  getRows() {
+    return this._horizontalSpots
+  }
+
+  getDiagonalLeftToRight() {
+    return this._diagonalSpotsLeftToRight
+  }
+
+  getDiagonalRightToLeft() {
+    return this._diagonalSpotsRightToLeft
   }
 
   isBoardFull() {
-    return this._columnsWithSpots.every((column) => {
+    return this.getColumns().every((column) => {
       return column.every((spot) => spot.getOwner() !== null)
     })
   }
 
   setOwnerToFirstAvailableSpotOnColumnIndex({ columnIndex, owner }) {
-    const columnSpots = this._columnsWithSpots[columnIndex]
+    const columnSpots = this.getColumns()[columnIndex]
 
     const availableSpot = columnSpots.find((spot) => spot.getOwner() === null)
 
@@ -52,7 +62,7 @@ export class Lig4Board {
   }
 
   setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex }) {
-    const columnSpots = this._columnsWithSpots[columnIndex]
+    const columnSpots = this.getColumns()[columnIndex]
 
     columnSpots.forEach((spot) => {
       if (!spot.hasOwner()) {
@@ -62,7 +72,7 @@ export class Lig4Board {
   }
 
   setAvailableSpotsAsPreSelectedOnColumnIndex({ columnIndex }) {
-    const columnSpots = this._columnsWithSpots[columnIndex]
+    const columnSpots = this.getColumns()[columnIndex]
 
     columnSpots.forEach((spot) => {
       if (!spot.hasOwner()) {
@@ -72,7 +82,7 @@ export class Lig4Board {
   }
 
   setAllAvailableSpotsAsDefault() {
-    this._columnsWithSpots.forEach((column) => {
+    this.getColumns().forEach((column) => {
       column.forEach((spot) => {
         if (!spot.hasOwner()) {
           spot.setStatus(SPOT_STATUSES.DEFAULT)
@@ -81,10 +91,18 @@ export class Lig4Board {
     })
   }
 
+  resetBoardToDefault() {
+    this.getColumns().forEach((column) => {
+      column.forEach((spot) => {
+        spot.setOwner(null)
+      })
+    })
+  }
+
   _setupSpotsOnBoard() {
     const { height: canvasHeight } = this.Canvas.getCanvasSize()
 
-    const columnsWithSpots = COLUMNS_PLACEHOLDER.map((_, columnIndex) => {
+    COLUMNS_PLACEHOLDER.map((_, columnIndex) => {
       const allSpotsOnColumn = SPOTS_PER_COLUMN_PLACEHOLDER.map(
         (_, spotIndex) => {
           const spot = new SpotObject({
@@ -110,7 +128,6 @@ export class Lig4Board {
       return allSpotsOnColumn
     })
 
-    this._columnsWithSpots = columnsWithSpots
     this._fillDiagonalSpots()
   }
 
@@ -121,11 +138,13 @@ export class Lig4Board {
       })
     })
 
-    this._verticalSpots.reverse().forEach((spotsOnColumn, columnIndex) => {
-      spotsOnColumn.forEach((spot, spotIndex) => {
-        this._diagonalSpotsRightToLeft[columnIndex + spotIndex].push(spot)
+    Array.from(this._verticalSpots)
+      .reverse()
+      .forEach((spotsOnColumn, columnIndex) => {
+        spotsOnColumn.forEach((spot, spotIndex) => {
+          this._diagonalSpotsRightToLeft[columnIndex + spotIndex].push(spot)
+        })
       })
-    })
   }
 
   _fillVerticalSpotsWith({ spots }) {

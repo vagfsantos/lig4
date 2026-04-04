@@ -7,9 +7,10 @@ export class Lig4RoundController {
   togglePlayTurn() {
     if (this._playerInCurrentTurn === PLAYERS_ID.USER) {
       this._playerInCurrentTurn = PLAYERS_ID.MACHINE
-    } else {
+    } else if (this._playerInCurrentTurn === PLAYERS_ID.MACHINE) {
       this._playerInCurrentTurn = PLAYERS_ID.USER
     }
+
     this._runAllCallbacks()
   }
 

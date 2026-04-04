@@ -6,9 +6,11 @@ export class Lig4UX {
     startGameButton: null,
     scorePanel: null,
     playerTurnMessage: null,
+    matchEndModal: null,
   }
 
   onStartGameCallbackList = []
+  onPlayAgainCallbackList = []
 
   constructor() {
     this._DOMElements.startGameButton =
@@ -19,28 +21,36 @@ export class Lig4UX {
     )
     this._DOMElements.playerTurnMessage =
       document.querySelector('#player-turn-msg')
+    this._DOMElements.matchEndModal = document.querySelector('#match-end-modal')
+    this._DOMElements.matchEndResultMessage =
+      document.querySelector('#match-end-result')
+    this._DOMElements.matchEndPlayAgainButton = document.querySelector(
+      '#match-end-play-again-btn'
+    )
   }
 
   init({ gameCanvas }) {
     this._appendCanvasToDOM({ gameCanvas })
     this._setupStartButtonClickEvent()
+    this._setupPlayAgainButtonClickEvent()
   }
 
   onPlayerTurnChange({ playerTurn }) {
     const { playerTurnMessage, canvasWrapper } = this._DOMElements
 
-    playerTurnMessage.textContent =
-      playerTurn === PLAYERS_ID.USER
-        ? 'Pick a column to launch'
-        : 'Wait, the computer is playing'
+    if (playerTurn == null) {
+      playerTurnMessage.textContent = ''
+    }
 
     if (playerTurn === PLAYERS_ID.USER) {
+      playerTurnMessage.textContent = 'Pick a column to launch'
       canvasWrapper.classList.add('is-user')
       canvasWrapper.classList.remove('is-machine')
       return
     }
 
     if (playerTurn === PLAYERS_ID.MACHINE) {
+      playerTurnMessage.textContent = 'Wait, the computer is playing'
       canvasWrapper.classList.remove('is-user')
       canvasWrapper.classList.add('is-machine')
       return
@@ -54,8 +64,24 @@ export class Lig4UX {
     this.onStartGameCallbackList.push(callback)
   }
 
+  onPlayAgain(callback) {
+    this.onPlayAgainCallbackList.push(callback)
+  }
+
+  setMatchWinner({ winner }) {
+    this._DOMElements.matchEndModal.classList.add('is-match-ended')
+    this._DOMElements.matchEndResultMessage.textContent =
+      winner === PLAYERS_ID.USER ? 'You won' : 'You lost'
+  }
+
   _runAllStartGameCallbacks() {
     this.onStartGameCallbackList.forEach((callback) => {
+      callback()
+    })
+  }
+
+  _runAllPlayAgainCallbacks() {
+    this.onPlayAgainCallbackList.forEach((callback) => {
       callback()
     })
   }
@@ -74,5 +100,12 @@ export class Lig4UX {
   _appendCanvasToDOM({ gameCanvas }) {
     const { canvasWrapper } = this._DOMElements
     canvasWrapper.appendChild(gameCanvas)
+  }
+
+  _setupPlayAgainButtonClickEvent() {
+    this._DOMElements.matchEndPlayAgainButton.addEventListener('click', () => {
+      this._runAllPlayAgainCallbacks()
+      this._DOMElements.matchEndModal.classList.remove('is-match-ended')
+    })
   }
 }

@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "useDefineForClassFields": true,
     "baseUrl": "./src",
     "paths": {
       "@game-engine/*": ["./app/game-engine/*"],

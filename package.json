@@ -9,7 +9,7 @@
     "@lig4/*": "./src/app/lig4/$1"
   },
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "start": "yarn parcel src/index.html",
     "dev": "rm -rf .parcel-cache && yarn parcel src/index.html",
     "make-dist": "rm -rf ./game && yarn parcel build --dist-dir ./game --public-url https://vagfsantos.github.io/lig4/game/",
@@ -28,12 +28,14 @@
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@parcel/transformer-sass": "2.13.3",
+    "@parcel/transformer-sass": "2.16.4",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "parcel": "^2.13.3",
+    "husky": "^9.1.7",
+    "lint-staged": "16.4.0",
+    "parcel": "^2.16.4",
     "pre-commit": "^1.2.2",
     "prettier": "^3.8.1",
     "svgo": "^3"

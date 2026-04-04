@@ -4,11 +4,13 @@ export class Lig4Machine {
   }
 
   whereToplay() {
+    if (this.Board.isBoardFull()) return null
+
     return this._calcWhereToPlay()
   }
 
   _columnHasAvailableSpots({ spots }) {
-    return spots.find((spot) => spot.getOwner() === null) ? true : false
+    return spots.find((spot) => spot.getOwner() == null) ? true : false
   }
 
   _calcWhereToPlay() {

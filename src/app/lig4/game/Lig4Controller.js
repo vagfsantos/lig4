@@ -18,6 +18,7 @@ export class Lig4Controller {
   GameRules = null
 
   _columnEventPlaceholders = []
+  _matchHasEnded = false
 
   init() {
     this._setup()
@@ -59,14 +60,14 @@ export class Lig4Controller {
     this.UX.onStartGame(() => {
       this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
     })
+    this.UX.onPlayAgain(() => {
+      this._brandNewMatch()
+    })
   }
 
   _setupRounds() {
     this.RoundController.onRoundChange(() => this._machinePlay())
     this.RoundController.onRoundChange(({ playerTurn }) => {
-      if (this.GameRules.isMatchOver()) {
-        alert('End game')
-      }
       this.UX.onPlayerTurnChange({ playerTurn })
     })
   }
@@ -83,22 +84,39 @@ export class Lig4Controller {
     })
   }
 
+  _checkMatchEnd() {
+    const { isMatchOver, matchedSpots } = this.GameRules.isMatchOver()
+    if (isMatchOver) {
+      this._matchHasEnded = true
+      matchedSpots.forEach((spot) => spot.setStatusAsMatched())
+      this.UX.setMatchWinner({
+        winner: this.RoundController.getPlayerInCurrentTurn(),
+      })
+      this.RoundController.setPlayerInCurrentTurn(null)
+    }
+  }
+
+  _brandNewMatch() {
+    this._matchHasEnded = false
+    this.Board.resetBoardToDefault()
+    this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
+  }
+
   _machinePlay() {
-    this.Board.setAllAvailableSpotsAsDefault()
+    if (this._matchHasEnded) return
 
     if (!this.RoundController.isMachinesTurn() || this.Board.isBoardFull()) {
       return
     }
 
-    const whereToPlay = this.Machine.whereToplay({
-      spotsByColumn: this.Board.getColumns(),
-    })
+    const whereToPlay = this.Machine.whereToplay()
 
     window.setTimeout(() => {
       this.Board.setOwnerToFirstAvailableSpotOnColumnIndex({
         columnIndex: whereToPlay.columIndex,
         owner: PLAYERS_ID.MACHINE,
       })
+      this._checkMatchEnd()
       this.RoundController.togglePlayTurn()
     }, 500)
   }
@@ -109,6 +127,8 @@ export class Lig4Controller {
         columnIndex,
         owner: PLAYERS_ID.USER,
       })
+      this.Board.setAllAvailableSpotsAsDefault()
+      this._checkMatchEnd()
       this.RoundController.togglePlayTurn()
     } catch (e) {
       console.info(e)
@@ -120,7 +140,7 @@ export class Lig4Controller {
       column.onEvent({
         name: 'mousemove',
         callback: ({ isInsideGameObjectArea }) => {
-          if (!this.RoundController.isUsersTurn()) return
+          if (!this.RoundController.isUsersTurn() || this._matchHasEnded) return
 
           if (isInsideGameObjectArea) {
             this.Board.setAvailableSpotsAsPreSelectedOnColumnIndex({
@@ -139,7 +159,11 @@ export class Lig4Controller {
       column.onEvent({
         name: 'click',
         callback: ({ isInsideGameObjectArea }) => {
-          if (isInsideGameObjectArea && this.RoundController.isUsersTurn()) {
+          if (
+            isInsideGameObjectArea &&
+            this.RoundController.isUsersTurn() &&
+            !this._matchHasEnded
+          ) {
             this._userPlayOnColumn({ columnIndex })
           }
         },

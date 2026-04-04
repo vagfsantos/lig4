@@ -48,18 +48,30 @@ export class SpotObject extends GameObject {
     this.state.status = status
   }
 
+  setStatusAsMatched() {
+    this.state.status =
+      this.getOwner() === PLAYERS_ID.USER
+        ? SPOT_STATUSES.MATCHED_USER
+        : SPOT_STATUSES.MATCHED_MACHINE
+  }
+
   getOwner() {
     return this.state.owner
   }
 
   setOwner(owner) {
-    if (this.state.owner === null) {
+    if (owner && this.state.owner === null) {
       this.state.owner = owner
       this.setStatus(
         owner === PLAYERS_ID.USER
           ? SPOT_STATUSES.OWNER_USER
           : SPOT_STATUSES.OWNER_MACHINE
       )
+    }
+
+    if (owner == null) {
+      this.state.owner = null
+      this.setStatus(SPOT_STATUSES.DEFAULT)
     }
   }
 

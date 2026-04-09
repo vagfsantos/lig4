@@ -1,76 +1,15 @@
 import { GameCanvas } from '@game-engine/GameCanvas'
 import { GameController } from '@game-engine/GameController'
-import { GameSound } from '@game-engine/GameSound'
 import { BOARD_SETTINGS, PLAYERS_ID } from '@lig4/constants/gameSettings'
 import { Lig4Board } from '@lig4/game/Lig4Board'
 import { Lig4GameRules } from '@lig4/game/Lig4GameRules'
 import { Lig4Machine } from '@lig4/game/Lig4Machine'
 import { Lig4RoundController } from '@lig4/game/Lig4RoundController'
 import { Lig4Score } from '@lig4/game/Lig4Score'
+import { Lig4Sound } from '@lig4/game/Lig4Sound'
 import { Lig4UX } from '@lig4/game/Lig4UX'
 import { ColumnEventObject } from '@lig4/objects/ColumnEventObject'
-import backgroundSound from 'url:../../../sound/background.mp3'
-import failSound from 'url:../../../sound/fail.mp3'
-import hoverSound from 'url:../../../sound/hover.mp3'
-import machinePlaySound from 'url:../../../sound/machine-play.mp3'
-import userPlaySound from 'url:../../../sound/user-play.mp3'
-import winSound from 'url:../../../sound/win.mp3'
 
-export class Lig4Sound {
-  Sound = new GameSound()
-
-  bgSoundIsPlaying = false
-  _hoverColumnindex = null
-
-  playBackgroundSound() {
-    if (!this._bgSoundIsPlaying) {
-      this.Sound.playSound({
-        url: backgroundSound,
-        loop: true,
-      })
-      this._bgSoundIsPlaying = true
-    }
-  }
-
-  playUserPlaySound() {
-    this.Sound.playSound({
-      url: userPlaySound,
-      loop: false,
-    })
-  }
-
-  playMachinePlaySound() {
-    this.Sound.playSound({
-      url: machinePlaySound,
-      loop: false,
-    })
-  }
-
-  playWinSound() {
-    this.Sound.playSound({
-      url: winSound,
-      loop: false,
-    })
-  }
-
-  playFailSound() {
-    this.Sound.playSound({
-      url: failSound,
-      loop: false,
-    })
-  }
-
-  playHoverSound({ columnIndex }) {
-    if (columnIndex !== this._hoverColumnindex) {
-      this.Sound.playSound({
-        url: hoverSound,
-        loop: false,
-      })
-    }
-
-    this._hoverColumnindex = columnIndex
-  }
-}
 export class Lig4Controller {
   Canvas = new GameCanvas()
   RoundController = new Lig4RoundController()
@@ -121,6 +60,12 @@ export class Lig4Controller {
   }
 
   _setupUX() {
+    this.UX.onDOMIsReady(() => {
+      this.Sound.loadAllSounds().then(() => {
+        this.UX.setIsLoading(false)
+      })
+    })
+
     this.UX.init({ gameCanvas: this.Canvas.getCanvas() })
     this.UX.onStartGame(() => {
       this.Sound.playBackgroundSound()

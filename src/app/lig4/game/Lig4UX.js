@@ -2,6 +2,7 @@ import { PLAYERS_ID } from '@lig4/constants/gameSettings'
 
 export class Lig4UX {
   _DOMElements = {
+    body: null,
     canvasWrapper: null,
     startGameButton: null,
     scorePanel: null,
@@ -16,8 +17,10 @@ export class Lig4UX {
   onStartGameCallbackList = []
   onResetGameCallbackList = []
   onPlayAgainCallbackList = []
+  onDOMIsReadyCallbackList = []
 
   constructor() {
+    this._DOMElements.body = document.querySelector('body')
     this._DOMElements.startGameButton =
       document.querySelector('#game-start-btn')
     this._DOMElements.scorePanel = document.querySelector('#score')
@@ -37,9 +40,12 @@ export class Lig4UX {
     this._DOMElements.machineScorePoints = document.querySelector(
       '#machine-score-points'
     )
+
+    this.setIsLoading(true)
   }
 
   init({ gameCanvas }) {
+    this._runOnDOMIsReadyCallbacks()
     this._appendCanvasToDOM({ gameCanvas })
     this._setupStartButtonClickEvent()
     this._setupPlayAgainButtonClickEvent()
@@ -70,6 +76,10 @@ export class Lig4UX {
     canvasWrapper.classList.remove('is-machine')
   }
 
+  onDOMIsReady(callback) {
+    this.onDOMIsReadyCallbackList.push(callback)
+  }
+
   onStartGame(callback) {
     this.onStartGameCallbackList.push(callback)
   }
@@ -92,6 +102,23 @@ export class Lig4UX {
     this._DOMElements.userScorePoints.textContent = scores[PLAYERS_ID.USER]
     this._DOMElements.machineScorePoints.textContent =
       scores[PLAYERS_ID.MACHINE]
+  }
+
+  setIsLoading(isLoading) {
+    this._DOMElements.startGameButton.disabled = isLoading
+    if (isLoading) {
+      this._DOMElements.startGameButton.classList.add('is-loading')
+      this._DOMElements.startGameButton.textContent = 'Loading...'
+    } else {
+      this._DOMElements.startGameButton.classList.remove('is-loading')
+      this._DOMElements.startGameButton.textContent = 'Start'
+    }
+  }
+
+  _runOnDOMIsReadyCallbacks() {
+    this.onDOMIsReadyCallbackList.forEach((callback) => {
+      callback()
+    })
   }
 
   _runAllStartGameCallbacks() {

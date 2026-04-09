@@ -1,8 +1,11 @@
 export class GameSound {
   _audioCtx = new AudioContext()
 
-  async playSound({ url, loop = false }) {
-    // Load and decode the audio file
+  _loadedAudios = {}
+
+  async loadSound({ id, url }) {
+    if (this._loadedAudios[id]) return
+
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'audio/mp3',
@@ -12,13 +15,15 @@ export class GameSound {
     const arrayBuffer = await response.arrayBuffer()
     const audioBuffer = await this._audioCtx.decodeAudioData(arrayBuffer)
 
-    // Create a source node
-    const source = this._audioCtx.createBufferSource()
-    source.buffer = audioBuffer
-    source.loop = loop
+    this._loadedAudios[id] = audioBuffer
+  }
 
-    // Connect to speakers and start
-    source.connect(this._audioCtx.destination)
-    source.start()
+  async playSound({ id, loop = false }) {
+    const audioBufferSource = this._audioCtx.createBufferSource()
+    audioBufferSource.buffer = this._loadedAudios[id]
+
+    audioBufferSource.loop = loop
+    audioBufferSource.connect(this._audioCtx.destination)
+    audioBufferSource.start(0)
   }
 }

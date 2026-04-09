@@ -65,6 +65,20 @@ body {
 
       &.primary {
         background-color: #ff9f1c;
+
+        &.is-loading,
+        :disabled {
+          cursor: progress;
+          background: linear-gradient(
+            90deg,
+            #ff9f1c 25%,
+            #fab75b 50%,
+            #ff9f1c 75%
+          );
+          background-size: 200% 100%; /* Wider than container to allow sliding */
+          animation: shimmer 1.5s infinite;
+        }
+
         &:hover {
           background-color: $user_dark;
         }
@@ -77,6 +91,15 @@ body {
         }
       }
     }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }
 

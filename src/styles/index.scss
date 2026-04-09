@@ -1,4 +1,4 @@
-@use "sass:color";
+@use 'sass:color';
 
 $user_dark: color.scale(
   $color: #ff9f1c,
@@ -20,7 +20,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Alexandria", serif;
+  font-family: 'Alexandria', serif;
   font-optical-sizing: auto;
 }
 
@@ -29,6 +29,7 @@ body {
   height: 700px;
   position: relative;
   background-color: #e5e5e5;
+  overflow: hidden;
 
   header {
     width: 100%;
@@ -64,6 +65,20 @@ body {
 
       &.primary {
         background-color: #ff9f1c;
+
+        &.is-loading,
+        :disabled {
+          cursor: progress;
+          background: linear-gradient(
+            90deg,
+            #ff9f1c 25%,
+            #fab75b 50%,
+            #ff9f1c 75%
+          );
+          background-size: 200% 100%; /* Wider than container to allow sliding */
+          animation: shimmer 1.5s infinite;
+        }
+
         &:hover {
           background-color: $user_dark;
         }
@@ -79,32 +94,78 @@ body {
   }
 }
 
-#game-canvas {
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+#canvas-placeholder {
   width: 659px;
   height: 564px;
   position: absolute;
   bottom: 32px;
   right: 67px;
-  cursor: pointer;
+
+  &.is-playing.is-machine {
+    cursor: progress;
+  }
+
+  &.is-playing.is-user {
+    cursor:
+      url('../img/mouse-cursor.png') 5 5,
+      pointer;
+  }
 }
 
 #score {
+  width: 70%;
   position: absolute;
-  top: 0;
+  top: 26px;
   right: 0;
-  display: flex;
   align-items: center;
+  display: flex;
+  justify-content: space-between;
+  visibility: hidden;
 
-  > span {
+  .score-title {
     font-size: 24px;
     display: block;
     margin-right: 12px;
     font-weight: 300;
   }
 
+  #player-turn-msg {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: 0.4s ease-in;
+  }
+
   .score-wrapper {
     display: flex;
+    align-items: center;
+
+    opacity: 0;
+    transform: translateX(200px);
+    transition: 0.4s ease-in;
+  }
+
+  &.is-playing {
+    visibility: visible;
+
+    #player-turn-msg,
+    .score-wrapper {
+      opacity: 1;
+      transform: translateX(0px);
+    }
+  }
+
+  .score-match-wrapper {
     width: 204px;
+    display: flex;
   }
 
   .score-badge {
@@ -171,5 +232,24 @@ body {
     font-size: 24px;
     cursor: pointer;
     border: none;
+
+    transition: 0.2s background-color ease-in;
+
+    &:hover {
+      background-color: #26e6d3;
+    }
   }
+}
+
+.match-result-modal {
+  width: 410px;
+  height: 187px;
+  background-color: linear-gradient(black 60%, rgba(0, 0, 0, 0.44));
+  position: absolute;
+  margin: auto;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  text-align: center;
 }

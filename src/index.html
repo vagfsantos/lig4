@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,7 +10,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" type="text/css" href="./styles/index.scss" />
-    <script type="module" src="app/index.js"></script>
+    <script type="module" src="./app/lig4/index.js"></script>
   </head>
   <body>
     <div id="game">
@@ -21,7 +21,7 @@
       <nav>
         <ul>
           <li>
-            <button id="game-start-btn" class="primary" type="button">
+            <button id="game-start-btn" class="primary" type="button" disabled>
               Start
             </button>
           </li>
@@ -32,27 +32,32 @@
       </nav>
 
       <section id="score">
-        <span>Score</span>
-
+        <div>
+          <span id="player-turn-msg" class="score-title"></span>
+        </div>
         <div class="score-wrapper">
-          <div
-            id="user-score-wrapper"
-            class="score-badge score-user is-playing"
-          >
-            <img src="./img/user.svg" />
-            <span id="user-score-points">0</span>
-          </div>
-          <div id="machine-score-wrapper" class="score-badge score-machine">
-            <span id="machine-score-points">0</span>
-            <img src="./img/machine.svg" />
+          <span class="score-title">Score</span>
+
+          <div class="score-match-wrapper">
+            <div
+              id="user-score-wrapper"
+              class="score-badge score-user is-playing"
+            >
+              <img src="./img/user.svg" />
+              <span id="user-score-points">0</span>
+            </div>
+            <div id="machine-score-wrapper" class="score-badge score-machine">
+              <span id="machine-score-points">0</span>
+              <img src="./img/machine.svg" />
+            </div>
           </div>
         </div>
       </section>
 
-      <canvas id="game-canvas" width="659" height="564"> </canvas>
+      <main id="canvas-placeholder"></main>
 
       <div id="match-end-modal">
-        <h3 id="match-end-result"></h3>
+        <h3 id="match-end-result">Result</h3>
         <button id="match-end-play-again-btn">Play Again</button>
       </div>
     </div>

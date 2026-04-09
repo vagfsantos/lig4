@@ -10,6 +10,11 @@ import {
 export class SpotObject extends GameObject {
   type = GAME_OBJECT_TYPES.STATIC
 
+  boardPlace = {
+    columnIndex: null,
+    rowIndex: null,
+  }
+
   state = {
     status: 'default',
     owner: null,
@@ -42,6 +47,18 @@ export class SpotObject extends GameObject {
     ctx.lineWidth = BOARD_SETTINGS.SPOT_BORDER_WIDTH
     ctx.strokeStyle = this._getBorderColor()
     ctx.stroke()
+  }
+
+  getColumnIndex() {
+    return this.boardPlace.columnIndex
+  }
+
+  setColumnIndex(columnIndex) {
+    this.boardPlace.columnIndex = columnIndex
+  }
+
+  setRowIndex(rowIndex) {
+    this.boardPlace.rowIndex = rowIndex
   }
 
   setStatus(status) {

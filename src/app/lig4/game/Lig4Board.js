@@ -99,6 +99,17 @@ export class Lig4Board {
     })
   }
 
+  willPlayOnSpotColumnIndexMatchGivenSpot({ spot }) {
+    const targetSpotForPlay = this._getFirstAvailableSpotOn({
+      columnIndex: spot.getColumnIndex(),
+    })
+    return targetSpotForPlay ? targetSpotForPlay.name === spot.name : false
+  }
+
+  _getFirstAvailableSpotOn({ columnIndex }) {
+    return this.getColumns()[columnIndex].find((spot) => !spot.hasOwner())
+  }
+
   _setupSpotsOnBoard() {
     const { height: canvasHeight } = this.Canvas.getCanvasSize()
 
@@ -108,6 +119,9 @@ export class Lig4Board {
           const spot = new SpotObject({
             name: `spot-col-${columnIndex}-spot-${spotIndex}`,
           })
+
+          spot.setColumnIndex(columnIndex)
+          spot.setRowIndex(spotIndex)
 
           const x =
             columnIndex * (spot.diameterSize + BOARD_SETTINGS.SPOT_MARGIN_X)

@@ -59,6 +59,14 @@ export class SpotObject extends GameObject {
     return this.state.owner
   }
 
+  isOwnerUser() {
+    return this.getOwner() === PLAYERS_ID.USER
+  }
+
+  isOwnerMachine() {
+    return this.getOwner() === PLAYERS_ID.MACHINE
+  }
+
   setOwner(owner) {
     if (owner && this.state.owner === null) {
       this.state.owner = owner

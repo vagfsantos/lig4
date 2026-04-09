@@ -1,16 +1,81 @@
 import { GameCanvas } from '@game-engine/GameCanvas'
 import { GameController } from '@game-engine/GameController'
+import { GameSound } from '@game-engine/GameSound'
 import { BOARD_SETTINGS, PLAYERS_ID } from '@lig4/constants/gameSettings'
 import { Lig4Board } from '@lig4/game/Lig4Board'
 import { Lig4GameRules } from '@lig4/game/Lig4GameRules'
 import { Lig4Machine } from '@lig4/game/Lig4Machine'
 import { Lig4RoundController } from '@lig4/game/Lig4RoundController'
+import { Lig4Score } from '@lig4/game/Lig4Score'
 import { Lig4UX } from '@lig4/game/Lig4UX'
 import { ColumnEventObject } from '@lig4/objects/ColumnEventObject'
+import backgroundSound from 'url:../../../sound/background.mp3'
+import failSound from 'url:../../../sound/fail.mp3'
+import hoverSound from 'url:../../../sound/hover.mp3'
+import machinePlaySound from 'url:../../../sound/machine-play.mp3'
+import userPlaySound from 'url:../../../sound/user-play.mp3'
+import winSound from 'url:../../../sound/win.mp3'
 
+export class Lig4Sound {
+  Sound = new GameSound()
+
+  bgSoundIsPlaying = false
+  _hoverColumnindex = null
+
+  playBackgroundSound() {
+    if (!this._bgSoundIsPlaying) {
+      this.Sound.playSound({
+        url: backgroundSound,
+        loop: true,
+      })
+      this._bgSoundIsPlaying = true
+    }
+  }
+
+  playUserPlaySound() {
+    this.Sound.playSound({
+      url: userPlaySound,
+      loop: false,
+    })
+  }
+
+  playMachinePlaySound() {
+    this.Sound.playSound({
+      url: machinePlaySound,
+      loop: false,
+    })
+  }
+
+  playWinSound() {
+    this.Sound.playSound({
+      url: winSound,
+      loop: false,
+    })
+  }
+
+  playFailSound() {
+    this.Sound.playSound({
+      url: failSound,
+      loop: false,
+    })
+  }
+
+  playHoverSound({ columnIndex }) {
+    if (columnIndex !== this._hoverColumnindex) {
+      this.Sound.playSound({
+        url: hoverSound,
+        loop: false,
+      })
+    }
+
+    this._hoverColumnindex = columnIndex
+  }
+}
 export class Lig4Controller {
   Canvas = new GameCanvas()
   RoundController = new Lig4RoundController()
+  Score = new Lig4Score()
+  Sound = new Lig4Sound()
   Controller = null
   Machine = null
   Board = null
@@ -58,10 +123,18 @@ export class Lig4Controller {
   _setupUX() {
     this.UX.init({ gameCanvas: this.Canvas.getCanvas() })
     this.UX.onStartGame(() => {
+      this.Sound.playBackgroundSound()
       this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
     })
     this.UX.onPlayAgain(() => {
       this._brandNewMatch()
+    })
+    this.Score.onScoreChange(({ scores }) => {
+      this.UX.updateScore({ scores })
+    })
+
+    this.UX.onResetGame(() => {
+      this._resetGame()
     })
   }
 
@@ -89,7 +162,16 @@ export class Lig4Controller {
     if (isMatchOver) {
       this._matchHasEnded = true
       matchedSpots.forEach((spot) => spot.setStatusAsMatched())
+      if (this.RoundController.getPlayerInCurrentTurn() === PLAYERS_ID.USER) {
+        this.Sound.playWinSound()
+      } else {
+        this.Sound.playFailSound()
+      }
+
       this.UX.setMatchWinner({
+        winner: this.RoundController.getPlayerInCurrentTurn(),
+      })
+      this.Score.addPointTo({
         winner: this.RoundController.getPlayerInCurrentTurn(),
       })
       this.RoundController.setPlayerInCurrentTurn(null)
@@ -100,6 +182,13 @@ export class Lig4Controller {
     this._matchHasEnded = false
     this.Board.resetBoardToDefault()
     this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
+  }
+
+  _resetGame() {
+    this._matchHasEnded = false
+    this.Board.resetBoardToDefault()
+    this.RoundController.setPlayerInCurrentTurn(PLAYERS_ID.USER)
+    this.Score.resetScore()
   }
 
   _machinePlay() {
@@ -116,6 +205,7 @@ export class Lig4Controller {
         columnIndex: whereToPlay.columIndex,
         owner: PLAYERS_ID.MACHINE,
       })
+      this.Sound.playMachinePlaySound()
       this._checkMatchEnd()
       this.RoundController.togglePlayTurn()
     }, 500)
@@ -127,6 +217,7 @@ export class Lig4Controller {
         columnIndex,
         owner: PLAYERS_ID.USER,
       })
+      this.Sound.playUserPlaySound()
       this.Board.setAllAvailableSpotsAsDefault()
       this._checkMatchEnd()
       this.RoundController.togglePlayTurn()
@@ -146,6 +237,7 @@ export class Lig4Controller {
             this.Board.setAvailableSpotsAsPreSelectedOnColumnIndex({
               columnIndex,
             })
+            this.Sound.playHoverSound({ columnIndex })
           } else {
             this.Board.setAvailableSpotsAsDefaultOnColumnIndex({ columnIndex })
           }

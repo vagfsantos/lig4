@@ -7,9 +7,14 @@ export class Lig4UX {
     scorePanel: null,
     playerTurnMessage: null,
     matchEndModal: null,
+    matchEndResultMessage: null,
+    matchEndPlayAgainButton: null,
+    userScorePoints: null,
+    machineScorePoints: null,
   }
 
   onStartGameCallbackList = []
+  onResetGameCallbackList = []
   onPlayAgainCallbackList = []
 
   constructor() {
@@ -26,6 +31,11 @@ export class Lig4UX {
       document.querySelector('#match-end-result')
     this._DOMElements.matchEndPlayAgainButton = document.querySelector(
       '#match-end-play-again-btn'
+    )
+    this._DOMElements.userScorePoints =
+      document.querySelector('#user-score-points')
+    this._DOMElements.machineScorePoints = document.querySelector(
+      '#machine-score-points'
     )
   }
 
@@ -68,14 +78,30 @@ export class Lig4UX {
     this.onPlayAgainCallbackList.push(callback)
   }
 
+  onResetGame(callback) {
+    this.onResetGameCallbackList.push(callback)
+  }
+
   setMatchWinner({ winner }) {
     this._DOMElements.matchEndModal.classList.add('is-match-ended')
     this._DOMElements.matchEndResultMessage.textContent =
       winner === PLAYERS_ID.USER ? 'You won' : 'You lost'
   }
 
+  updateScore({ scores }) {
+    this._DOMElements.userScorePoints.textContent = scores[PLAYERS_ID.USER]
+    this._DOMElements.machineScorePoints.textContent =
+      scores[PLAYERS_ID.MACHINE]
+  }
+
   _runAllStartGameCallbacks() {
     this.onStartGameCallbackList.forEach((callback) => {
+      callback()
+    })
+  }
+
+  _runAllResetGameCallbacks() {
+    this.onResetGameCallbackList.forEach((callback) => {
       callback()
     })
   }
@@ -90,10 +116,19 @@ export class Lig4UX {
     const { startGameButton, scorePanel, canvasWrapper } = this._DOMElements
 
     startGameButton.addEventListener('click', () => {
-      startGameButton.textContent = 'Restart'
-      scorePanel.classList.toggle('is-playing')
-      canvasWrapper.classList.toggle('is-playing')
-      this._runAllStartGameCallbacks()
+      const currentStateText = startGameButton.textContent
+
+      if (currentStateText.match(/Start/gim)) {
+        startGameButton.textContent = 'Restart'
+        scorePanel.classList.add('is-playing')
+        canvasWrapper.classList.add('is-playing')
+        this._runAllStartGameCallbacks()
+      }
+
+      if (currentStateText.match(/Restart/gim)) {
+        this._DOMElements.matchEndModal.classList.remove('is-match-ended')
+        this._runAllResetGameCallbacks()
+      }
     })
   }
 
